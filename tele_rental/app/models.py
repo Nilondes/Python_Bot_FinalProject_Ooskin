@@ -29,6 +29,7 @@ class Ad(models.Model):
     def __str__(self):
         return f'{self.name} - {self.user} - {self.created_at}'
 
+
 class SearchCriteria(models.Model):
     chat_id = models.ForeignKey(User, to_field='chat_id', on_delete=models.CASCADE, db_column='chat_id')
     keywords = ArrayField(ArrayField(models.CharField(max_length=40), default="{%%}", blank=True))
@@ -37,3 +38,14 @@ class SearchCriteria(models.Model):
 
     def __str__(self):
         return f'{self.chat_id}'
+
+
+class AdComments(models.Model):
+    ad = models.ForeignKey(Ad, on_delete=models.CASCADE)
+    comment = models.TextField()
+    is_approved = models.BooleanField(default=False)
+    user = models.ForeignKey(User, to_field='username', on_delete=models.CASCADE, db_column='user')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.user} - {self.created_at} - {self.ad}'
