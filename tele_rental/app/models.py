@@ -31,7 +31,7 @@ class Ad(models.Model):
 
 class SearchCriteria(models.Model):
     chat_id = models.ForeignKey(User, to_field='chat_id', on_delete=models.CASCADE, db_column='chat_id')
-    keywords = ArrayField(ArrayField(models.CharField(max_length=40), default=('%%', ), blank=True))
+    keywords = ArrayField(ArrayField(models.CharField(max_length=40), default="{%%}", blank=True))
     min_price = models.DecimalField(max_digits=7, decimal_places=2, default=0)
     max_price = models.DecimalField(max_digits=7, decimal_places=2, default=99999.99)
 
