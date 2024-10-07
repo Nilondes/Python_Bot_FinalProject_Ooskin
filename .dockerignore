@@ -1,0 +1,8 @@
+*
+!bot
+!README.md
+!main.py
+!.env
+!docker-entrypoint.sh
+!requirements.txt
+!Dockerfile

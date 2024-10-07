@@ -85,7 +85,7 @@ class TestAdCriteria(unittest.TestCase):
     def test_update_criteria(self):
         new_min_price = 5
         new_max_price = 15
-        new_keywords = ["%keyword_1%", "%keyword_2%"]
+        new_keywords = ["keyword_1", "keyword_2"]
         SearchCriteria(self.conn).update(self.user, min_price=new_min_price, max_price=new_max_price, keywords=new_keywords)
         criteria = SearchCriteria(self.conn).get(self.user)
         self.assertEqual(criteria['min_price'], new_min_price)
@@ -158,13 +158,13 @@ class TestSearchingAd(unittest.TestCase):
     def test_searching_by_keywords(self):
         new_min_price = 0
         new_max_price = 99999.99
-        new_keywords = ["%Description1%", "%First%"]
+        new_keywords = ["Description1", "Second"]
         SearchCriteria(self.conn).update(self.user, min_price=new_min_price, max_price=new_max_price, keywords=new_keywords)
         criteria = SearchCriteria(self.conn).get(self.user)
         ads = Ad(self.conn).show_ads(min_price=criteria['min_price'], max_price=criteria['max_price'], keywords=tuple(criteria['keywords']))
         ids = [ad[0] for ad in ads]
         self.assertTrue(self.ad_1_id in ids)
-        self.assertFalse(self.ad_2_id in ids)
+        self.assertTrue(self.ad_2_id in ids)
         self.assertFalse(self.ad_3_id in ids)
 
 

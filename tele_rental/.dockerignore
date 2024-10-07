@@ -1,0 +1,7 @@
+*
+!app
+!tele_rental
+!manage.py
+!docker-entrypoint.sh
+!Dockerfile
+!.dockerignore

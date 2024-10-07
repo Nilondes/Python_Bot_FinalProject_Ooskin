@@ -99,18 +99,19 @@ class Ad(TableClass):
             self.conn.rollback()
             logging.error(f"Error occurred: {e}")
 
-    def show_ads(self, min_price=0, max_price=99999.99, is_approved=(True, ), keywords=('%%',), user='%%'):
+    def show_ads(self, min_price=0, max_price=99999.99, is_approved=(True, ), keywords=(), user='%%'):
         try:
-            self.cursor.execute("""
-                            SELECT id, name, description, price, location, start_date, end_date, phone, is_approved, "user" FROM app_ad aa WHERE EXISTS (
-                                                                SELECT *
-                                                                FROM (VALUES %s)p (pattern)
-                                                                WHERE aa.name LIKE p.pattern OR aa.description LIKE p.pattern
-                                                                ) AND 
-                                                                price BETWEEN %s AND %s AND
-                                                                is_approved in %s AND
-                                                                "user" LIKE %s;
-                            """, (keywords, min_price, max_price, is_approved, user))
+            base_query = """SELECT id, name, description, price, location, start_date, end_date, phone, is_approved, "user"
+             FROM app_ad aa WHERE """
+            query_for_name =  """ OR """.join([""" aa."name" ILIKE %s""" for _ in keywords]) if keywords else ''
+            query_for_description = """ OR """ + """ OR """.join(""" aa.description ILIKE %s""" for _ in keywords) + """ AND """ if keywords else ''
+            query_for_price = """aa.price BETWEEN %s AND %s"""
+            query_for_approved = """aa.is_approved IN %s"""
+            query_for_user = """aa."user" ILIKE %s"""
+            params = [f"%{keyword}%" for keyword in keywords]*2
+            params += [min_price, max_price, is_approved, user]
+            query = base_query + query_for_name + query_for_description + query_for_price + " AND " + query_for_approved + " AND " + query_for_user
+            self.cursor.execute(query, params)
             res = self.cursor.fetchall()
             return res
 
@@ -199,7 +200,7 @@ class Ad(TableClass):
 
 
 class SearchCriteria(TableClass):
-    def create(self, chat_id, min_price=0, max_price=99999.99, keywords="{%%}"):
+    def create(self, chat_id, min_price=0, max_price=99999.99, keywords="{}"):
         try:
             self.cursor.execute("""INSERT INTO app_searchcriteria (min_price, max_price, keywords, chat_id)
             VALUES (%s, %s, %s, %s);
@@ -210,7 +211,7 @@ class SearchCriteria(TableClass):
             self.conn.rollback()
             logging.error(f"Error occurred: {e}")
 
-    def update(self, chat_id, min_price=0, max_price=99999.99, keywords="{%%}"):
+    def update(self, chat_id, min_price=0, max_price=99999.99, keywords="{}"):
         try:
             self.cursor.execute("""
                     UPDATE app_searchcriteria
