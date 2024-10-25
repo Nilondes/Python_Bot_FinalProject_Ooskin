@@ -1,0 +1,46 @@
+version: "3.9"
+
+networks:
+  backend:
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: nilondes
+      POSTGRES_PASSWORD: tele_test
+      POSTGRES_DB: tele_rental
+    volumes:
+      - /var/lib/postgresql/data
+    networks:
+      - backend
+  app:
+    build:
+      context: ./tele_rental
+      args:
+        DEPS: dev
+    ports:
+      - "8000:8000"
+    environment:
+      DEBUG: "true"
+      DATABASE_USER: nilondes
+      DATABASE_PASSWORD: tele_test
+      DATABASE_DB: tele_rental
+      DATABASE_HOST: postgres
+    networks:
+      - backend
+  bot:
+    build:
+      context: .
+      args:
+        DEPS: dev
+    ports:
+      - "7999:7999"
+    environment:
+      DEBUG: "true"
+      DATABASE_USER: nilondes
+      DATABASE_PASSWORD: tele_test
+      DATABASE_DB: tele_rental
+      DATABASE_HOST: postgres
+    networks:
+      - backend
